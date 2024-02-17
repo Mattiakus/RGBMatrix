@@ -1,0 +1,104 @@
+/* This script makes it easy for you to display images on an Adafruit Matrix and code using the Matrix
+ * I was kinda annoyed because the Adafruit drawRGBBitmap function was not well documented while being hard tu understand
+ * the only example of it being used was another github project but it was wayyy too complicated.
+ * I still haven't found a way to use drawRGBBitmap but just programmed the function myself now.
+ * Please have fun!
+ * You can import Pictures by converting them on this website: http://rinkydinkelectronics.com/t_imageconverter565.php
+ * and including the .c file down in the first part
+ * You will just need to change the variables in the first 25 lines and change the sequence in lines 65-80.
+ */
+
+#define mwidth 16 // defines the width  of the matrix
+#define mheight 16 // defines the height of the matrix
+
+#define mPIN 7     // Defines the Data Pin, the Matrix is connected to
+
+#define BRIGHTNESS 25 //max is 255, 25 is a conservative value to not overload
+                      //a USB power supply for 16x16 pixels
+
+
+// please put your picture bitmaps here
+#include "pixelart.c"
+#include "fcknzs.c"
+#include "Grass.c"
+#include "peace.c"
+#include "TEST.c"
+
+
+
+
+
+
+
+
+
+
+#include <Adafruit_GFX.h>
+#include <Adafruit_NeoMatrix.h>
+#include <Adafruit_NeoPixel.h>
+
+Adafruit_NeoMatrix *matrix = new Adafruit_NeoMatrix(
+      mwidth, //how wide is the Matrix?
+      mheight,//how high is the Matrix?
+      mPIN,   //which pin is the Matrix connected to?
+      NEO_MATRIX_TOP     + NEO_MATRIX_RIGHT +   //defines the "first" pixel of the matrix
+      NEO_MATRIX_ROWS + NEO_MATRIX_ZIGZAG,      //If you get gibberish, tweak at these parameters. They define the flow of the matrix
+      NEO_GRB            + NEO_KHZ800           //defines the Type of Matrix you have
+); //If you want to learn more about that stuff ^ then look at the matrixtest example in the neomatrix library folder.
+
+
+
+
+
+
+
+
+
+void setup() {
+  //Serial.begin(9600);
+  matrix->begin();
+  matrix->setBrightness(BRIGHTNESS);   ///those three lines are just part of the initialization of the matrix
+  matrix->clear();
+}
+
+void loop() {
+
+      // I set up a function called printRGB that just displays the bitmap on your matrix
+      // the part below this should't be too hard to understand if you know a little C
+
+  printRGB(TEST);
+  delay(5000);
+  printRGB(pixelart);
+  delay(5000);
+  printRGB(peace);
+  delay(5000);
+  printRGB(fcknzs);
+  delay(5000);
+  printRGB(GRASS);
+  delay(5000);
+  
+}
+
+
+
+
+void printRGB( int bitmap[] ){
+
+matrix->clear();
+   int  x=0;    // x and y are the actual coordinates of the pixel
+   int  y=0;
+   
+   for(y=0;y<16;y++){      // this part sets the matrix color of every pixel the same as the color in the bitmap
+     for(x=0;x<16;x++){
+        unsigned int PXL = 16*y+x;//----the actual count of the pixel left to right and up to down
+        unsigned int CLR = pgm_read_word_near(bitmap + PXL); //the pictures are too large to store in RAM,
+        matrix->drawPixel(x,y,CLR);                         //so they have to be stored in Program Memory. Hence the ugly stuff
+       
+    }
+  }
+  matrix->show(); //this refreshes the Matrix, so all the pixels change color the same time
+
+
+  //matrix->drawRGBBitmap(0,0,pixelart,16,16);
+
+}
